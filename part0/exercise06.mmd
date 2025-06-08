@@ -1,0 +1,11 @@
+sequenceDiagram
+    participant browser
+    participant server
+
+    Note over browser: The browser get the value of the new note, <br> refresh the notes on the page to display the new one, <br> then send the new note to the server.
+
+    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_notes_spa
+    activate server
+    Note over server: Server is registering the new note in the database, <br> then sends back a 201 to say that the new note has been <br> created successfully.
+    server-->>browser: 201 created
+    deactivate server
