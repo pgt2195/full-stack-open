@@ -7,7 +7,6 @@ const Button = (props) => (
 )
 
 const App = () => {
-  const votes = {}
   const anecdotes = [
     'If it hurts, do it more often.',
     'Adding manpower to a late software project makes it later!',
@@ -24,35 +23,70 @@ const App = () => {
   }
 
 
-  const nbOfElements = anecdotes.length
-  const [selected, setSelected] = useState(getRandomInt(nbOfElements))
+  const nbOfQuotes = anecdotes.length
+  const emptyArray = Array(nbOfQuotes).fill(0)
+
+  const [selected, setSelected] = useState(getRandomInt(nbOfQuotes))
+  const [votes, setVotes] = useState(emptyArray)
   
 
   const getAnecdote = () => {
-    if (nbOfElements <= 1) {
+    if (nbOfQuotes <= 1) {
       console.log("Error, getAnecdote function needs more than one element")
       return
     }
 
-    let randomNb = getRandomInt(nbOfElements)
+    let randomNb = getRandomInt(nbOfQuotes)
     while (randomNb === selected) {
-      randomNb = getRandomInt(nbOfElements)
+      randomNb = getRandomInt(nbOfQuotes)
     }
     setSelected(randomNb)
   }
 
 
-  const vote = (vote) => {
-    console.log(`You voted for ${vote}`)
+  const vote = (index) => {
+    let currentVotes = [...votes]
+    currentVotes[index] += 1
+    setVotes(currentVotes)
+    console.log(`You voted for ${index}`)
+  }
+
+
+  const getMostPopular = () => {
+    let temp = 0
+    for (let i = 0; i < nbOfQuotes; i++) {
+      if (votes[i] > votes[temp]) {
+        temp = i
+      }
+    }
+
+    if (votes.every(vote => vote === 0)) {
+      return (
+        <p>No votes yet!</p>
+      )
+    } else {
+      return (
+        <>
+          <p>{anecdotes[temp]}</p>
+          <p>Has {votes[temp]} votes</p>
+        </>
+      )
+    }
   }
 
 
   return (
     <div>
+      <h1>Anecdote of the day</h1>
+
       <p>{anecdotes[selected]}</p>
-      <p>{selected}</p>
+      <p>Has {votes[selected]} votes</p>
       <Button handleClick={() => vote(selected)} text='Vote' />
       <Button handleClick={getAnecdote} text='Get random anecdote' />
+
+      <h1>Anecdote with most votes</h1>
+
+      {getMostPopular()}
     </div>
   )
 }
