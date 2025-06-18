@@ -1,10 +1,35 @@
 import { useState } from "react";
 
+const Filter = ({ value, onChange}) => (
+  <div>
+    Search for a contact:{" "}
+    <input value={value} onChange={onChange} />
+  </div>
+)
+
 const Entry = ({ person }) => (
-  <li>
+  <div>
     {person.name} {person.phone}
-  </li>
+  </div>
 );
+
+const PersonForm = ({ onSubmit, newName, newPhone, nameChange, phoneChange}) => (
+  <form onSubmit={onSubmit}>
+    <div>
+      name: <input value={newName} onChange={nameChange} /> <br />
+      number: <input value={newPhone} onChange={phoneChange} />
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+)
+
+const Persons = ({ persons }) => (
+  <>
+    {persons.map((person) => <Entry key={person.id} person={person} /> )}
+  </>
+)
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -13,13 +38,20 @@ const App = () => {
     { name: "Dan Abramov", phone: "12-43-234345", id: 3 },
     { name: "Mary Poppendieck", phone: "39-23-6423122", id: 4 },
   ]);
-
-  // Code pour gérer l'ajout d'un nouveau contact
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [newSearch, setNewSearch] = useState("");
+  const [showAll, setShowAll] = useState(true);
 
   const handleNameChange = (event) => setNewName(event.target.value);
   const handlePhoneChange = (event) => setNewPhone(event.target.value);
+  const handleSearchChange = (event) => {
+    const searchValue = event.target.value
+    setNewSearch(searchValue);
+    searchValue ? setShowAll(false) : setShowAll(true)
+    console.log(searchValue)
+  };
+
   const addEntry = (event) => {
     event.preventDefault();
     const addedEntry = {
@@ -34,44 +66,34 @@ const App = () => {
     }
   };
 
-  // Code pour gérer la recherche dand la liste
-  const [newSearch, setNewSearch] = useState("");
-  const [showAll, setShowAll] = useState(true);
-
-  const handleSearchChange = (event) => {
-    const searchValue = event.target.value
-    setNewSearch(searchValue);
-    searchValue ? setShowAll(false) : setShowAll(true)
-    console.log(searchValue)
-  };
   const contactsToShow = showAll
     ? persons
     : persons.filter((person) => person.name.toLowerCase().includes(newSearch.toLowerCase()));
 
-  // Code qui est rendu par l'application
+    
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-        Search for a contact:{" "}
-        <input value={newSearch} onChange={handleSearchChange} />
-      </div>
+      
+      <Filter 
+        value={ newSearch } 
+        onChange={ handleSearchChange } 
+      />
+
       <h2>Add a new entry</h2>
-      <form onSubmit={addEntry}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} /> <br />
-          number: <input value={newPhone} onChange={handlePhoneChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+
+      <PersonForm 
+        onSubmit={addEntry}
+        newName={newName}
+        newPhone={newPhone}
+        nameChange={handleNameChange}
+        phoneChange={handlePhoneChange}
+      />
+
       <h2>Numbers</h2>
-      <ul>
-        {contactsToShow.map((person) => (
-          <Entry key={person.id} person={person} />
-        ))}
-      </ul>
+      
+      <Persons persons={contactsToShow} />
+
     </div>
   );
 };
