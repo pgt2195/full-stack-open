@@ -2,16 +2,10 @@ import { useState } from "react";
 
 const Filter = ({ value, onChange}) => (
   <div>
-    Search for a contact:{" "}
+    Search for a contact: {''}
     <input value={value} onChange={onChange} />
   </div>
 )
-
-const Entry = ({ person }) => (
-  <div>
-    {person.name} {person.phone}
-  </div>
-);
 
 const PersonForm = ({ onSubmit, newName, newPhone, nameChange, phoneChange}) => (
   <form onSubmit={onSubmit}>
@@ -31,6 +25,12 @@ const Persons = ({ persons }) => (
   </>
 )
 
+const Entry = ({ person }) => (
+  <div>
+    {person.name} {person.phone}
+  </div>
+);
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: "Arto Hellas", phone: "040-123456", id: 1 },
@@ -49,7 +49,7 @@ const App = () => {
     const searchValue = event.target.value
     setNewSearch(searchValue);
     searchValue ? setShowAll(false) : setShowAll(true)
-    console.log(searchValue)
+    // console.log(searchValue)
   };
 
   const addEntry = (event) => {
@@ -70,7 +70,7 @@ const App = () => {
     ? persons
     : persons.filter((person) => person.name.toLowerCase().includes(newSearch.toLowerCase()));
 
-    
+
   return (
     <div>
       <h2>Phonebook</h2>
