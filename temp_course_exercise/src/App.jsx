@@ -7,17 +7,17 @@ const App = (props) => {
   const [showAll, setShowAll] = useState(true)
 
   const addNote = (event) => {
-  event.preventDefault()
-  const noteObject = {
-    content: newNote,
-    date: new Date().toISOString(),
-    important: Math.random() < 0.5,
-    id: notes.length + 1,
-  }
+    event.preventDefault()
+    const noteObject = {
+      content: newNote,
+      date: new Date().toISOString(),
+      important: Math.random() < 0.5,
+      id: notes.length + 1,
+    }
 
-  setNotes(notes.concat(noteObject))
-  setNewNote('')
-}
+    setNotes(notes.concat(noteObject))
+    setNewNote('')
+  }
 
   const handleNoteChange = (event) => {
     console.log(event.target.value)
