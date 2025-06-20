@@ -3,6 +3,7 @@ import noteService from "./services/persons";
 import Persons from "./components/Persons";
 import PersonForm from "./components/PersonForm";
 import Filter from "./components/Filter";
+import Notification from "./components/Notifications";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,7 @@ const App = () => {
   const [newPhone, setNewPhone] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [showAll, setShowAll] = useState(true);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     noteService
@@ -36,6 +38,14 @@ const App = () => {
     setNewPhone("");
   }
 
+  const displayNotification = (message) => {
+    setNotification(message)
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+    console.log(message)
+  }
+
   const addEntry = (event) => {
     event.preventDefault();
     const addedEntry = {
@@ -44,14 +54,13 @@ const App = () => {
     };
 
     const personExists = persons.find((i) => i.name === addedEntry.name)
-
     if (!personExists) {
       noteService
         .create(addedEntry)
         .then((returnedEntry) => {
           setPersons(persons.concat(returnedEntry))
           clearForm()
-          console.log(`${returnedEntry.name} has been added!`)
+          displayNotification(`${returnedEntry.name} has been added!`)
         })
     } else {
       const message = `${addedEntry.name} is already added to the phonebook, do you want to update the number ?`;
@@ -66,8 +75,8 @@ const App = () => {
       noteService
         .deleteEntry(entry.id)
         .then((deletedEntry) => {
-          setPersons(persons.filter((n) => n.id !== deletedEntry.id));
-          console.log(`${entry.name} has been deleted!`);
+          setPersons(persons.filter((n) => n.id !== deletedEntry.id))
+          displayNotification(`${entry.name} has been deleted!`)
         })
     }
   };
@@ -79,7 +88,7 @@ const App = () => {
       .then(returnedEntry => {
         setPersons(persons.map(n => n.id !== person.id ? n : returnedEntry))
         clearForm()
-        console.log(`${person.name} has been updated!`)
+        displayNotification(`${person.name} has been updated!`)
       })
   };
 
@@ -98,6 +107,8 @@ const App = () => {
         nameChange={handleNameChange}
         phoneChange={handlePhoneChange}
       />
+
+      <Notification message={notification} />
 
       <h2>Numbers</h2>
 
