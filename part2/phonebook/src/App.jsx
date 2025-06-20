@@ -12,11 +12,18 @@ const App = () => {
   const [newSearch, setNewSearch] = useState("");
   const [showAll, setShowAll] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [notifType, setNotifType] = useState("");
 
   useEffect(() => {
     noteService
       .getAll()
-      .then((initialPersons) => setPersons(initialPersons));
+      .then((initialPersons) => setPersons(initialPersons))
+      .catch(error => (
+          displayNotification(
+            `Something went wrong, can't reach server`,
+            "bad"
+          )
+        ))
   }, []);
 
   const contactsToShow = showAll
@@ -36,15 +43,16 @@ const App = () => {
   const clearForm = () => {
     setNewName("");
     setNewPhone("");
-  }
+  };
 
-  const displayNotification = (message) => {
-    setNotification(message)
+  const displayNotification = (message, type = "good") => {
+    setNotifType(type);
+    setNotification(message);
     setTimeout(() => {
-      setNotification(null)
-    }, 5000)
-    console.log(message)
-  }
+      setNotification(null);
+    }, 5000);
+    console.log(message);
+  };
 
   const addEntry = (event) => {
     event.preventDefault();
@@ -53,15 +61,21 @@ const App = () => {
       number: newPhone,
     };
 
-    const personExists = persons.find((i) => i.name === addedEntry.name)
+    const personExists = persons.find((i) => i.name === addedEntry.name);
     if (!personExists) {
       noteService
         .create(addedEntry)
         .then((returnedEntry) => {
-          setPersons(persons.concat(returnedEntry))
-          clearForm()
-          displayNotification(`${returnedEntry.name} has been added!`)
+          setPersons(persons.concat(returnedEntry));
+          clearForm();
+          displayNotification(`${returnedEntry.name} has been added!`);
         })
+        .catch(error => (
+          displayNotification(
+            `Something went wrong, please try again later`,
+            "bad"
+          )
+        ))
     } else {
       const message = `${addedEntry.name} is already added to the phonebook, do you want to update the number ?`;
       if (confirm(message)) {
@@ -75,21 +89,33 @@ const App = () => {
       noteService
         .deleteEntry(entry.id)
         .then((deletedEntry) => {
-          setPersons(persons.filter((n) => n.id !== deletedEntry.id))
-          displayNotification(`${entry.name} has been deleted!`)
+          setPersons(persons.filter((n) => n.id !== deletedEntry.id));
+          displayNotification(`${entry.name} has been deleted!`);
         })
+        .catch(error => (
+          displayNotification(
+            `Something went wrong, can't find ${entry.name} on the server`,
+            "bad"
+          )
+        ))
     }
   };
 
   const toggleChangeNumber = (person, newNumber) => {
-    const changedPerson = {...person, number: newNumber}
+    const changedPerson = { ...person, number: newNumber };
     noteService
       .update(person.id, changedPerson)
-      .then(returnedEntry => {
-        setPersons(persons.map(n => n.id !== person.id ? n : returnedEntry))
-        clearForm()
-        displayNotification(`${person.name} has been updated!`)
+      .then((returnedEntry) => {
+        setPersons(persons.map((n) => (n.id !== person.id ? n : returnedEntry)));
+        clearForm();
+        displayNotification(`${person.name} has been updated!`);
       })
+      .catch(error => (
+        displayNotification(
+          `Something went wrong, can't find ${person.name} on the server`,
+          "bad"
+        )
+      ))
   };
 
   return (
@@ -108,7 +134,7 @@ const App = () => {
         phoneChange={handlePhoneChange}
       />
 
-      <Notification message={notification} />
+      <Notification message={notification} type={notifType} />
 
       <h2>Numbers</h2>
 
