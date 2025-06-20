@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react"
-import noteService from './services/persons'
-import Persons from "./components/Persons"
-import PersonForm from "./components/PersonForm"
-import Filter from "./components/Filter"
+import { useState, useEffect } from "react";
+import noteService from "./services/persons";
+import Persons from "./components/Persons";
+import PersonForm from "./components/PersonForm";
+import Filter from "./components/Filter";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -14,19 +14,27 @@ const App = () => {
   useEffect(() => {
     noteService
       .getAll()
-      .then(initialPersons => (
-        setPersons(initialPersons)
-      ))
-  }, [])
+      .then((initialPersons) => setPersons(initialPersons));
+  }, []);
+
+  const contactsToShow = showAll
+    ? persons
+    : persons.filter((person) =>
+        person.name.toLowerCase().includes(newSearch.toLowerCase())
+      );
 
   const handleNameChange = (event) => setNewName(event.target.value);
   const handlePhoneChange = (event) => setNewPhone(event.target.value);
   const handleSearchChange = (event) => {
-    const searchValue = event.target.value
+    const searchValue = event.target.value;
     setNewSearch(searchValue);
-    searchValue ? setShowAll(false) : setShowAll(true)
-    // console.log(searchValue)
+    searchValue ? setShowAll(false) : setShowAll(true);
   };
+
+  const clearForm = () => {
+    setNewName("");
+    setNewPhone("");
+  }
 
   const addEntry = (event) => {
     event.preventDefault();
@@ -34,16 +42,22 @@ const App = () => {
       name: newName,
       number: newPhone,
     };
-    if (!persons.find((i) => i.name === addedEntry.name)) {
+
+    const personExists = persons.find((i) => i.name === addedEntry.name)
+
+    if (!personExists) {
       noteService
         .create(addedEntry)
-        .then(returnedEntry => {
+        .then((returnedEntry) => {
           setPersons(persons.concat(returnedEntry))
-          setNewName('')
-          setNewPhone('')
+          clearForm()
+          console.log(`${returnedEntry.name} has been added!`)
         })
     } else {
-      alert(`${addedEntry.name} is already added to the phonebook`);
+      const message = `${addedEntry.name} is already added to the phonebook, do you want to update the number ?`;
+      if (confirm(message)) {
+        toggleChangeNumber(personExists, addedEntry.number);
+      }
     }
   };
 
@@ -51,31 +65,33 @@ const App = () => {
     if (confirm(`Do you want to delete ${entry.name}`)) {
       noteService
         .deleteEntry(entry.id)
-        .then(deletedEntry => {
-          setPersons(persons.filter(n => n.id !== deletedEntry.id))
-          console.log('deleted!')
+        .then((deletedEntry) => {
+          setPersons(persons.filter((n) => n.id !== deletedEntry.id));
+          console.log(`${entry.name} has been deleted!`);
         })
-        .catch(error => console.log('Nope!'))
     }
-  }
+  };
 
-  const contactsToShow = showAll
-    ? persons
-    : persons.filter((person) => person.name.toLowerCase().includes(newSearch.toLowerCase()));
-
+  const toggleChangeNumber = (person, newNumber) => {
+    const changedPerson = {...person, number: newNumber}
+    noteService
+      .update(person.id, changedPerson)
+      .then(returnedEntry => {
+        setPersons(persons.map(n => n.id !== person.id ? n : returnedEntry))
+        clearForm()
+        console.log(`${person.name} has been updated!`)
+      })
+  };
 
   return (
     <div>
       <h2>Phonebook</h2>
-      
-      <Filter 
-        value={ newSearch } 
-        onChange={ handleSearchChange } 
-      />
+
+      <Filter value={newSearch} onChange={handleSearchChange} />
 
       <h2>Add a new entry</h2>
 
-      <PersonForm 
+      <PersonForm
         onSubmit={addEntry}
         newName={newName}
         newPhone={newPhone}
@@ -84,9 +100,8 @@ const App = () => {
       />
 
       <h2>Numbers</h2>
-      
-      <Persons persons={contactsToShow} toggleDelete={toggleDelete} />
 
+      <Persons persons={contactsToShow} toggleDelete={toggleDelete} />
     </div>
   );
 };
