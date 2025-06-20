@@ -61,6 +61,13 @@ const App = () => {
       number: newPhone,
     };
 
+    /*
+      The 'personExists' trick only works when the app is open
+      in a single browser. If we open it in two browsers, add an entry
+      in one, and the same in the other, two identical entries
+      will be added to the database. Since handling this case
+      isn't required for the assignment, I decided not to spend time on it.
+    */
     const personExists = persons.find((i) => i.name === addedEntry.name);
     if (!personExists) {
       noteService
