@@ -1,36 +1,8 @@
-import { useState, useEffect } from "react";
-import axios from 'axios'
-
-const Filter = ({ value, onChange}) => (
-  <div>
-    Search for a contact: {''}
-    <input value={value} onChange={onChange} />
-  </div>
-)
-
-const PersonForm = ({ onSubmit, newName, newPhone, nameChange, phoneChange}) => (
-  <form onSubmit={onSubmit}>
-    <div>
-      name: <input value={newName} onChange={nameChange} /> <br />
-      number: <input value={newPhone} onChange={phoneChange} />
-    </div>
-    <div>
-      <button type="submit">add</button>
-    </div>
-  </form>
-)
-
-const Persons = ({ persons }) => (
-  <>
-    {persons.map((person) => <Entry key={person.id} person={person} /> )}
-  </>
-)
-
-const Entry = ({ person }) => (
-  <div>
-    {person.name} {person.number}
-  </div>
-);
+import { useState, useEffect } from "react"
+import noteService from './services/persons'
+import Persons from "./components/Persons"
+import PersonForm from "./components/PersonForm"
+import Filter from "./components/Filter"
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -40,10 +12,10 @@ const App = () => {
   const [showAll, setShowAll] = useState(true);
 
   useEffect(() => {
-    axios 
-      .get('http://192.168.1.31:3001/persons')
-      .then(response => (
-        setPersons(response.data)
+    noteService
+      .getAll()
+      .then(initialPersons => (
+        setPersons(initialPersons)
       ))
   }, [])
 
@@ -61,14 +33,31 @@ const App = () => {
     const addedEntry = {
       name: newName,
       number: newPhone,
-      id: persons.length + 1,
     };
     if (!persons.find((i) => i.name === addedEntry.name)) {
-      setPersons(persons.concat(addedEntry));
+      noteService
+        .create(addedEntry)
+        .then(returnedEntry => {
+          setPersons(persons.concat(returnedEntry))
+          setNewName('')
+          setNewPhone('')
+        })
     } else {
       alert(`${addedEntry.name} is already added to the phonebook`);
     }
   };
+
+  const toggleDelete = (entry) => {
+    if (confirm(`Do you want to delete ${entry.name}`)) {
+      noteService
+        .deleteEntry(entry.id)
+        .then(deletedEntry => {
+          setPersons(persons.filter(n => n.id !== deletedEntry.id))
+          console.log('deleted!')
+        })
+        .catch(error => console.log('Nope!'))
+    }
+  }
 
   const contactsToShow = showAll
     ? persons
@@ -96,7 +85,7 @@ const App = () => {
 
       <h2>Numbers</h2>
       
-      <Persons persons={contactsToShow} />
+      <Persons persons={contactsToShow} toggleDelete={toggleDelete} />
 
     </div>
   );
