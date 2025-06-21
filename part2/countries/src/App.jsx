@@ -43,8 +43,13 @@ const App = () => {
     } else if (countriesToShow.length === 1) {
       return <Country country={countriesToShow[0]} />
     } else {
-      return <Countries countries={countriesToShow} />
+      return <Countries countries={countriesToShow} toggleCountry={toggleCountry} />
     }
+  }
+
+  // Displays a country when the user clicks on the button
+  const toggleCountry = (name) => {
+    setSearch(name)
   }
 
   /* Rendering the main UI */
