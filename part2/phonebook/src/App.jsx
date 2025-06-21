@@ -12,7 +12,7 @@ const App = () => {
   const [newSearch, setNewSearch] = useState("");
   const [showAll, setShowAll] = useState(true);
   const [notification, setNotification] = useState(null);
-  const [notifType, setNotifType] = useState("");
+  const [notifType, setNotifType] = useState(null);
 
   useEffect(() => {
     noteService
@@ -65,7 +65,7 @@ const App = () => {
       The 'personExists' trick only works when the app is open
       in a single browser. If we open it in two browsers, add an entry
       in one, and the same in the other, two identical entries
-      will be added to the database. Since handling this case
+      will be added to the database (only a different ID). Since handling this case
       isn't required for the assignment, I decided not to spend time on it.
     */
     const personExists = persons.find((i) => i.name === addedEntry.name);
