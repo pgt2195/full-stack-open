@@ -1,16 +1,29 @@
-const Country = ({ country }) => {
-    return (
-        <>
-            <h1>{country.name.common}</h1>
-            <div>Capital: {country.capital}</div>
-            <div>Area: {country.area}</div>
-            <h2>Language</h2>
-            <ul>
-                {Object.values(country.languages).map(el => <li key={el}>{el}</li>)}
-            </ul>
-            <img src={country.flags.png} alt='flag' style={{marginTop: 10}}/>
-        </>
-    )
-}
+import { useState, useEffect } from "react";
+import weatherService from "../services/meteo";
+import DisplayMeteo from "./DisplayMeteo";
+import DisplayCountryData from "./DisplayCountryData";
 
-export default Country
+const Country = ({ country }) => {
+  const [weather, setWeather] = useState(null);
+
+  const lat = country.capitalInfo.latlng[0];
+  const lon = country.capitalInfo.latlng[1];
+
+  useEffect(() => {
+    weatherService
+      .getMeteo(lat, lon)
+      .then((JSONdata) => {
+        setWeather(JSONdata)
+      })
+      .catch(error => console.log(`Error, something wrong happened :/ ${error}`))
+  }, []);
+
+  return (
+    <>
+      <DisplayCountryData country={country} />
+      {weather ? <DisplayMeteo meteoData={weather} city={country.capital[0]}/> : ''}
+    </>
+  );
+};
+
+export default Country;
