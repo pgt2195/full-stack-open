@@ -1,5 +1,6 @@
 import axios from 'axios'
-const baseUrl = 'http://192.168.1.31:3001/persons'
+const baseUrl = 'http://192.168.1.31:3001/persons' // Works for my configuration but needs to be changed to localhost if needed
+// const baseUrl = 'http://localhost:3001/persons'
 
 const getAll = () => {
   const request = axios.get(baseUrl)
