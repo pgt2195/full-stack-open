@@ -96,6 +96,8 @@ const App = () => {
       noteService
         .deleteEntry(entry.id)
         .then((deletedEntry) => {
+          // console.log(typeof deletedEntry)
+          // console.log(deletedEntry)
           setPersons(persons.filter((n) => n.id !== deletedEntry.id));
           displayNotification(`${entry.name} has been deleted!`);
         })
