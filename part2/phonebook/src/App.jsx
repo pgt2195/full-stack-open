@@ -87,6 +87,7 @@ const App = () => {
       const message = `${addedEntry.name} is already added to the phonebook, do you want to update the number ?`;
       if (confirm(message)) {
         toggleChangeNumber(personExists, addedEntry.number);
+        console.log(`${personExists}\n${typeof personExists}`)
       }
     }
   };
