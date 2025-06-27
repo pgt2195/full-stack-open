@@ -81,7 +81,6 @@ const App = () => {
       const message = `${addedEntry.name} is already added to the phonebook, do you want to update the number ?`;
       if (confirm(message)) {
         toggleChangeNumber(personExists, addedEntry.number);
-        console.log(`${personExists}\n${typeof personExists}`);
       }
     }
   };
@@ -98,7 +97,7 @@ const App = () => {
         })
         .catch((error) =>
           displayNotification(
-            `Something went wrong, can't find ${entry.name} on the server`,
+            `Something went wrong: ${error}`,
             "bad"
           )
         );
@@ -117,10 +116,7 @@ const App = () => {
         displayNotification(`${person.name} has been updated!`);
       })
       .catch((error) =>
-        displayNotification(
-          `Something went wrong, can't find ${person.name} on the server`,
-          "bad"
-        )
+        displayNotification(`${error.response.data.error}`,"bad")
       );
   };
 
