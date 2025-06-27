@@ -18,7 +18,7 @@ const App = () => {
     personService
       .getAll()
       .then((initialPersons) => setPersons(initialPersons))
-      .catch((error) =>
+      .catch(() =>
         displayNotification(`Something went wrong, can't reach server`, "bad")
       );
   }, []);
