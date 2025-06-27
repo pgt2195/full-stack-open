@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import noteService from "./services/persons";
+import personService from "./services/persons";
 import Persons from "./components/Persons";
 import PersonForm from "./components/PersonForm";
 import Filter from "./components/Filter";
@@ -15,15 +15,12 @@ const App = () => {
   const [notifType, setNotifType] = useState(null);
 
   useEffect(() => {
-    noteService
+    personService
       .getAll()
       .then((initialPersons) => setPersons(initialPersons))
-      .catch(error => (
-          displayNotification(
-            `Something went wrong, can't reach server`,
-            "bad"
-          )
-        ))
+      .catch((error) =>
+        displayNotification(`Something went wrong, can't reach server`, "bad")
+      );
   }, []);
 
   const contactsToShow = showAll
@@ -70,31 +67,28 @@ const App = () => {
     */
     const personExists = persons.find((i) => i.name === addedEntry.name);
     if (!personExists) {
-      noteService
+      personService
         .create(addedEntry)
         .then((returnedEntry) => {
           setPersons(persons.concat(returnedEntry));
           clearForm();
           displayNotification(`${returnedEntry.name} has been added!`);
         })
-        .catch(error => (
-          displayNotification(
-            `Something went wrong, please try again later`,
-            "bad"
-          )
-        ))
+        .catch((error) => {
+          displayNotification(`${error.response.data.error}`, "bad");
+        });
     } else {
       const message = `${addedEntry.name} is already added to the phonebook, do you want to update the number ?`;
       if (confirm(message)) {
         toggleChangeNumber(personExists, addedEntry.number);
-        console.log(`${personExists}\n${typeof personExists}`)
+        console.log(`${personExists}\n${typeof personExists}`);
       }
     }
   };
 
   const toggleDelete = (entry) => {
     if (confirm(`Do you want to delete ${entry.name}`)) {
-      noteService
+      personService
         .deleteEntry(entry.id)
         .then((deletedEntry) => {
           // console.log(typeof deletedEntry)
@@ -102,30 +96,32 @@ const App = () => {
           setPersons(persons.filter((n) => n.id !== deletedEntry.id));
           displayNotification(`${entry.name} has been deleted!`);
         })
-        .catch(error => (
+        .catch((error) =>
           displayNotification(
             `Something went wrong, can't find ${entry.name} on the server`,
             "bad"
           )
-        ))
+        );
     }
   };
 
   const toggleChangeNumber = (person, newNumber) => {
     const changedPerson = { ...person, number: newNumber };
-    noteService
+    personService
       .update(person.id, changedPerson)
       .then((returnedEntry) => {
-        setPersons(persons.map((n) => (n.id !== person.id ? n : returnedEntry)));
+        setPersons(
+          persons.map((n) => (n.id !== person.id ? n : returnedEntry))
+        );
         clearForm();
         displayNotification(`${person.name} has been updated!`);
       })
-      .catch(error => (
+      .catch((error) =>
         displayNotification(
           `Something went wrong, can't find ${person.name} on the server`,
           "bad"
         )
-      ))
+      );
   };
 
   return (
